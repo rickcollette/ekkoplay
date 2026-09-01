@@ -957,6 +957,43 @@ func (s *Store) SongByHash(ctx context.Context, hash string) (model.Song, error)
 	return scanSong(s.DB.QueryRowContext(ctx, songSelect+" WHERE s.sha256=?", hash))
 }
 
+// SongByImportIdentity catches the common near-duplicate case where the same
+// recording was encoded or tagged twice, so its byte hash differs, while the
+// source filename only differs by a downloader copy suffix such as "(1)".
+func (s *Store) SongByImportIdentity(ctx context.Context, filename string, durationMS int64) (model.Song, error) {
+	want := normalizeImportFilename(filename)
+	rows, err := s.DB.QueryContext(ctx, songSelect+" WHERE s.duration_ms BETWEEN ? AND ?", durationMS-1500, durationMS+1500)
+	if err != nil {
+		return model.Song{}, err
+	}
+	defer rows.Close()
+	for rows.Next() {
+		song, scanErr := scanSong(rows)
+		if scanErr != nil {
+			return model.Song{}, scanErr
+		}
+		if want != "" && normalizeImportFilename(song.OriginalFilename) == want {
+			return song, nil
+		}
+	}
+	if err = rows.Err(); err != nil {
+		return model.Song{}, err
+	}
+	return model.Song{}, sql.ErrNoRows
+}
+
+func normalizeImportFilename(name string) string {
+	name = strings.TrimSuffix(name, filepath.Ext(name))
+	name = strings.TrimSpace(name)
+	if end := strings.LastIndex(name, " ("); end >= 0 && strings.HasSuffix(name, ")") {
+		var copyNumber int
+		if _, err := fmt.Sscanf(name[end:], " (%d)", &copyNumber); err == nil {
+			name = name[:end]
+		}
+	}
+	return strings.ToLower(strings.Join(strings.Fields(name), " "))
+}
+
 type ImportedSong struct {
 	Title, Artist, Album, FilePath, Format, Artwork, SHA256, OriginalFilename, Codec, Genre string
 	Year, TrackNumber, DiscNumber, SampleRate, Channels                                     int

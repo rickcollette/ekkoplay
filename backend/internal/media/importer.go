@@ -178,6 +178,16 @@ func (m *Manager) process(ctx context.Context, id int64) {
 		}
 	}
 	duration, _ := strconv.ParseFloat(p.Format.Duration, 64)
+	durationMS := int64(duration * 1000)
+	if existing, lookupErr := m.store.SongByImportIdentity(ctx, j.Filename, durationMS); lookupErr == nil {
+		_ = m.store.UpdateImportJob(ctx, id, "duplicate", "Same recording and source name already exist", 0, existing.ID)
+		_ = os.Remove(j.SourcePath)
+		m.emit(id)
+		return
+	} else if !errors.Is(lookupErr, sql.ErrNoRows) {
+		m.fail(ctx, id, lookupErr)
+		return
+	}
 	bitrate, _ := strconv.ParseInt(p.Format.BitRate, 10, 64)
 	st, err := os.Stat(j.SourcePath)
 	if err != nil {
@@ -208,7 +218,7 @@ func (m *Manager) process(ctx context.Context, id int64) {
 		return
 	}
 	art := m.extractArtwork(ctx, j.SourcePath, hash)
-	songID, err := m.store.InsertImportedSong(ctx, db.ImportedSong{Title: title, Artist: artist, Album: album, Year: year, TrackNumber: track, DiscNumber: disc, DurationMS: int64(duration * 1000), FilePath: dest, Format: strings.TrimPrefix(strings.ToUpper(ext), "."), Artwork: art, SHA256: hash, OriginalFilename: j.Filename, Codec: codec, Genre: genre, Bitrate: bitrate, SampleRate: rate, Channels: channels, FileSize: st.Size()})
+	songID, err := m.store.InsertImportedSong(ctx, db.ImportedSong{Title: title, Artist: artist, Album: album, Year: year, TrackNumber: track, DiscNumber: disc, DurationMS: durationMS, FilePath: dest, Format: strings.TrimPrefix(strings.ToUpper(ext), "."), Artwork: art, SHA256: hash, OriginalFilename: j.Filename, Codec: codec, Genre: genre, Bitrate: bitrate, SampleRate: rate, Channels: channels, FileSize: st.Size()})
 	if err != nil {
 		_ = os.Remove(dest)
 		if existing, lookupErr := m.store.SongByHash(ctx, hash); lookupErr == nil {

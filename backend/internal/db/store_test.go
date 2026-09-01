@@ -2,9 +2,31 @@ package db
 
 import (
 	"context"
+	"database/sql"
+	"errors"
 	"path/filepath"
 	"testing"
 )
+
+func TestImportIdentityIgnoresDownloaderCopySuffix(t *testing.T) {
+	s, err := Open(filepath.Join(t.TempDir(), "player.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer s.Close()
+	ctx := context.Background()
+	id, err := s.InsertImportedSong(ctx, ImportedSong{Title: "Hells Bells", Artist: "AC/DC", Album: "Back in Black", FilePath: "/music/hells-bells.mp3", Format: "MP3", SHA256: "first", OriginalFilename: "AC DC - Hells Bells (1).mp3", DurationMS: 309733})
+	if err != nil {
+		t.Fatal(err)
+	}
+	found, err := s.SongByImportIdentity(ctx, "AC DC - Hells Bells.mp3", 309100)
+	if err != nil || found.ID != id {
+		t.Fatalf("copy was not detected: id=%d err=%v", found.ID, err)
+	}
+	if _, err = s.SongByImportIdentity(ctx, "AC DC - Shoot to Thrill.mp3", 309100); !errors.Is(err, sql.ErrNoRows) {
+		t.Fatalf("different title matched: %v", err)
+	}
+}
 
 func TestProductionDatabaseStartsEmptyAndMigrates(t *testing.T) {
 	s, err := Open(filepath.Join(t.TempDir(), "player.db"))
