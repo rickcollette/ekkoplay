@@ -160,6 +160,13 @@ func (s *SupervisedMPV) Position(c context.Context) (time.Duration, error) {
 	}
 	return e.Position(c)
 }
+func (s *SupervisedMPV) Healthy(c context.Context) error {
+	e, err := s.engine()
+	if err != nil {
+		return err
+	}
+	return e.Healthy(c)
+}
 func (s *SupervisedMPV) Events() <-chan Event { return s.events }
 func (s *SupervisedMPV) Close() error {
 	var err error

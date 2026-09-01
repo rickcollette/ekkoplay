@@ -164,6 +164,28 @@ func (m *MirroredEngine) Close() error {
 	return first
 }
 func (m *MirroredEngine) Statuses() []ZoneStatus {
+	// Reconcile the displayed state with the supervised process. lastErr may be
+	// from a transient seek/load command and otherwise remained visible forever,
+	// even though mpv had recovered and was producing audio.
+	m.mu.RLock()
+	zones := append([]*mirrorZone(nil), m.zones...)
+	m.mu.RUnlock()
+	for _, z := range zones {
+		if z.engine == nil {
+			continue
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 250*time.Millisecond)
+		err := z.engine.Healthy(ctx)
+		cancel()
+		m.mu.Lock()
+		z.online = err == nil
+		if err == nil {
+			z.lastErr = ""
+		} else {
+			z.lastErr = err.Error()
+		}
+		m.mu.Unlock()
+	}
 	m.mu.RLock()
 	defer m.mu.RUnlock()
 	out := make([]ZoneStatus, 0, len(m.zones))
@@ -200,20 +222,29 @@ func (m *MirroredEngine) SetZone(ctx context.Context, name string, volumeTrim *i
 	if e == nil {
 		return errors.New("audio output is disabled")
 	}
+	var commandErr error
 	if volumeTrim != nil {
 		if err := e.SetVolume(ctx, clampVolume(master+*volumeTrim)); err != nil {
-			return err
+			commandErr = err
 		}
 	}
-	if muted != nil {
+	if commandErr == nil && muted != nil {
 		if err := e.SetMute(ctx, *muted); err != nil {
-			return err
+			commandErr = err
 		}
 	}
-	if delay != nil {
-		return e.SetDelay(ctx, *delay)
+	if commandErr == nil && delay != nil {
+		commandErr = e.SetDelay(ctx, *delay)
 	}
-	return nil
+	m.mu.Lock()
+	z.online = commandErr == nil
+	if commandErr != nil {
+		z.lastErr = commandErr.Error()
+	} else {
+		z.lastErr = ""
+	}
+	m.mu.Unlock()
+	return commandErr
 }
 func (m *MirroredEngine) correctDrift() {
 	t := time.NewTicker(5 * time.Second)

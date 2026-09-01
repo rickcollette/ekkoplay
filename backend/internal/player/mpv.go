@@ -182,6 +182,14 @@ func (m *MPV) SetVolume(ctx context.Context, v int) error {
 	_, e := m.command(ctx, "set_property", "volume", v)
 	return e
 }
+
+// Healthy verifies that mpv's IPC endpoint is responsive. A media command can
+// legitimately fail while a file is loading (or while the player is idle), so
+// command errors must not be treated as proof that the output process is down.
+func (m *MPV) Healthy(ctx context.Context) error {
+	_, err := m.command(ctx, "get_property", "mpv-version")
+	return err
+}
 func (m *MPV) Position(ctx context.Context) (time.Duration, error) {
 	d, e := m.command(ctx, "get_property", "time-pos")
 	if e != nil {
