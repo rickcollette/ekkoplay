@@ -301,7 +301,7 @@ export function Settings() {
           {systemMessage && <div className="system-message" role="status">{systemMessage}</div>}
         </section>
         <section className="panel form-panel system-panel">
-          <h2>System updates</h2>
+          <h2 id="system-updates">System updates</h2>
           <p>Updates come from the official GitHub release, are SHA-256 verified, backed up, health checked, and rolled back automatically if startup fails.</p>
           <div className="update-version"><strong>Installed: {updateStatus?.current_version||updateRelease?.current_version||'checking…'}</strong>{updateRelease&&<span>Latest: {updateRelease.latest_version}</span>}{updateStatus?.target_version&&updateStatus.state!=='idle'&&<span>Status: {updateStatus.state} · {updateStatus.target_version}</span>}</div>
           <div className="system-buttons"><button disabled={updateBusy} onClick={()=>void checkForUpdate()}><RotateCcw/> Check for updates</button>{updateRelease?.available&&<button className="primary" disabled={updateBusy} onClick={()=>void installUpdate()}><Download/> Install {updateRelease.latest_version}</button>}</div>

@@ -2,6 +2,15 @@
 
 A production-oriented Linux music appliance for ARM64 and AMD64 systems, built around a Go control plane, SQLite, mpv/ALSA audio playback, nginx, a phone-first React/Vite PWA, and a separate administration application.
 
+## Screenshots
+
+Live player views captured with Playwright:
+
+<p align="center">
+  <img src="docs/screenshots/player-home.png" alt="ekkoPlayer mobile home screen" width="360">
+  <img src="docs/screenshots/radio-directory.png" alt="ekkoPlayer radio directory" width="360">
+</p>
+
 ## Core rule
 
 The appliance owns playback. Phones and browsers are remote controls. Music continues if every browser closes, a phone sleeps, Wi-Fi drops, or a WebSocket reconnects.

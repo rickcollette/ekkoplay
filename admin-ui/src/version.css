@@ -1,0 +1,5 @@
+.version-chip{min-height:34px;padding:5px 10px;border:1px solid var(--line);border-radius:9px;display:flex;align-items:center;gap:8px;text-decoration:none;color:var(--muted);font-weight:750}
+.version-chip strong{padding:3px 6px;border-radius:6px;background:var(--accent2);color:var(--accent);font-size:10px}
+.version-chip.update-available{border-color:color-mix(in srgb,var(--accent) 35%,var(--line))}
+#system-updates{scroll-margin-top:80px}
+@media(max-width:460px){.version-chip strong{display:none}}
