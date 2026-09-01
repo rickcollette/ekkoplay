@@ -28,7 +28,7 @@ func TestProductionDatabaseStartsEmptyAndMigrates(t *testing.T) {
 	if err = s.DB.QueryRow("SELECT COUNT(*) FROM schema_migrations").Scan(&migrations); err != nil {
 		t.Fatal(err)
 	}
-	if migrations != 15 {
+	if migrations != 16 {
 		t.Fatalf("got %d migrations", migrations)
 	}
 }

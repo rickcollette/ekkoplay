@@ -87,17 +87,17 @@ func main() {
 	var mirrored *player.MirroredEngine
 	if cfg.StartMPV {
 		type override struct {
-			trim  int
-			muted bool
-			delay int
+			trim, delay, buffer, sampleRate, drift int
+			muted, exclusive, configured           bool
+			device, channels, format, filter       string
 		}
 		overrides := map[string]override{}
-		if rows, qerr := store.DB.Query(`SELECT name,volume_trim,muted,delay_ms FROM audio_output_overrides`); qerr == nil {
+		if rows, qerr := store.DB.Query(`SELECT name,volume_trim,muted,delay_ms,device,buffer_ms,channels,sample_rate,sample_format,exclusive,audio_filter,drift_correction_ms,configured FROM audio_output_overrides`); qerr == nil {
 			for rows.Next() {
-				var n string
-				var trim, mu, delay int
-				if rows.Scan(&n, &trim, &mu, &delay) == nil {
-					overrides[strings.ToLower(n)] = override{trim, mu != 0, delay}
+				var n, device, channels, format, filter string
+				var trim, mu, delay, buffer, sampleRate, exclusive, drift, configured int
+				if rows.Scan(&n, &trim, &mu, &delay, &device, &buffer, &channels, &sampleRate, &format, &exclusive, &filter, &drift, &configured) == nil {
+					overrides[strings.ToLower(n)] = override{trim, delay, buffer, sampleRate, drift, mu != 0, exclusive != 0, configured != 0, device, channels, format, filter}
 				}
 			}
 			rows.Close()
@@ -106,6 +106,10 @@ func main() {
 		for _, o := range cfg.AudioOutputs {
 			if x, ok := overrides[strings.ToLower(o.Name)]; ok {
 				o.VolumeTrim, o.Muted, o.DelayMS = x.trim, x.muted, x.delay
+				if x.configured {
+					o.Device, o.BufferMS, o.Channels, o.SampleRate, o.Format = x.device, x.buffer, x.channels, x.sampleRate, x.format
+					o.Exclusive, o.Filter, o.DriftCorrectionMS = x.exclusive, x.filter, x.drift
+				}
 			}
 			zones = append(zones, player.ZoneConfig{Name: o.Name, Device: o.Device, Enabled: o.Enabled, Primary: o.Primary, VolumeTrim: o.VolumeTrim, Muted: o.Muted, DelayMS: o.DelayMS, BufferMS: o.BufferMS, Channels: o.Channels, SampleRate: o.SampleRate, Format: o.Format, Exclusive: o.Exclusive, Filter: o.Filter, DriftCorrectionMS: o.DriftCorrectionMS})
 		}
