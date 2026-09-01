@@ -11,6 +11,10 @@ Live player views captured with Playwright:
   <img src="docs/screenshots/radio-directory.png" alt="ekkoPlayer radio directory" width="360">
 </p>
 
+<p align="center">
+  <img src="docs/screenshots/admin-dashboard.png" alt="ekkoPlayer administration dashboard" width="900">
+</p>
+
 ## Core rule
 
 The appliance owns playback. Phones and browsers are remote controls. Music continues if every browser closes, a phone sleeps, Wi-Fi drops, or a WebSocket reconnects.

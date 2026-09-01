@@ -88,7 +88,7 @@ fi
 unset admin_password
 
 systemctl daemon-reload;systemctl enable playerd.service nginx ekkoplayer-backup.timer ekkoplayer-update.path
-systemctl restart playerd.service nginx;systemctl restart ekkoplayer-backup.timer
+systemctl restart playerd.service nginx;systemctl restart ekkoplayer-backup.timer ekkoplayer-update.path
 curl --fail --retry 15 --retry-connrefused --retry-delay 1 http://127.0.0.1:9091/api/v1/health >/dev/null
 curl --fail http://127.0.0.1:9091/api/v1/version >/dev/null
 systemctl is-active --quiet playerd.service nginx ekkoplayer-backup.timer ekkoplayer-update.path
