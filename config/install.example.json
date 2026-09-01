@@ -1,0 +1,30 @@
+{
+  "room_name": "Music Room",
+  "http_port": 9090,
+  "tls": {
+    "enabled": false,
+    "certificate": "",
+    "private_key": ""
+  },
+  "paths": {
+    "data": "/srv/ekkoplayer",
+    "music": "/srv/ekkoplayer/music",
+    "imports": "/srv/ekkoplayer/imports",
+    "artwork": "/srv/ekkoplayer/artwork",
+    "backups": "/srv/ekkoplayer/backup",
+    "torrents": "/srv/ekkoplayer/torrents"
+  },
+  "audio_device": "alsa/default",
+  "audio_filter": "lavfi=[dynaudnorm=f=500:g=15:p=0.95]",
+  "audio_outputs": [
+    {"name":"Main","device":"alsa/default","enabled":true,"primary":true,"volume_trim":0,"muted":false,"delay_ms":0,"buffer_ms":100,"channels":"stereo","sample_rate":48000,"format":"float","exclusive":false,"filter":"lavfi=[dynaudnorm=f=500:g=15:p=0.95]","drift_correction_ms":40}
+  ],
+  "default_volume": 55,
+  "maximum_volume": 85,
+  "import_workers": 2,
+  "acoustid_key": "",
+  "torrent_peer_port": 51413,
+  "torrent_seed_days": 14,
+  "admin_username": "admin",
+  "admin_password": "replace-with-a-long-password"
+}

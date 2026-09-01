@@ -1,0 +1,12 @@
+ALTER TABLE songs ADD COLUMN genre TEXT NOT NULL DEFAULT '';
+ALTER TABLE songs ADD COLUMN metadata_source TEXT NOT NULL DEFAULT '';
+ALTER TABLE songs ADD COLUMN metadata_confidence INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE songs ADD COLUMN recording_mbid TEXT NOT NULL DEFAULT '';
+ALTER TABLE songs ADD COLUMN release_group_mbid TEXT NOT NULL DEFAULT '';
+ALTER TABLE songs ADD COLUMN release_mbid TEXT NOT NULL DEFAULT '';
+ALTER TABLE songs ADD COLUMN metadata_locked INTEGER NOT NULL DEFAULT 0;
+ALTER TABLE song_enrichment ADD COLUMN release_group_mbid TEXT NOT NULL DEFAULT '';
+ALTER TABLE song_enrichment ADD COLUMN release_mbid TEXT NOT NULL DEFAULT '';
+ALTER TABLE song_enrichment ADD COLUMN match_method TEXT NOT NULL DEFAULT '';
+ALTER TABLE song_enrichment ADD COLUMN candidate_json TEXT NOT NULL DEFAULT '';
+UPDATE song_enrichment SET status='retry',attempts=0,next_attempt_at=CURRENT_TIMESTAMP,message='Queued for improved identification',completed_at=NULL WHERE status IN ('processing','complete','unmatched','retry');

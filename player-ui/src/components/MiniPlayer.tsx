@@ -1,0 +1,5 @@
+import { Pause, Play, SkipForward } from 'lucide-react'
+import { useNavigate } from 'react-router-dom'
+import { Artwork } from './Artwork'
+import { usePlayer } from '../lib/player'
+export function MiniPlayer(){const {player,toggle,next}=usePlayer(),nav=useNavigate();if(!player?.current_song&&!player?.current_radio)return null;const song=player.current_song;const title=song?.title||player.current_radio?.name||'Radio',artist=song?.artist||player.current_radio?.genre||'Live stream';return <div className="mini-player"><button className="mini-main" aria-label={`Open now playing: ${title}`} onClick={()=>nav('/now-playing')}><Artwork artwork={song?.artwork||player.current_radio?.artwork} label={title} className="mini-art"/><span><strong>{title}</strong><small>{artist}</small></span></button><button className="icon-button mini-control" aria-label={player.status==='playing'?'Pause':'Play'} onClick={()=>void toggle()}>{player.status==='playing'?<Pause/>:<Play/>}</button><button className="icon-button mini-control" aria-label="Next track" onClick={()=>void next()}><SkipForward/></button></div>}

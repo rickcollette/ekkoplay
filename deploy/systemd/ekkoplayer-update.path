@@ -1,0 +1,9 @@
+[Unit]
+Description=Watch for ekkoPlayer update requests
+
+[Path]
+PathChanged=/srv/ekkoplayer/update/request.json
+Unit=ekkoplayer-update.service
+
+[Install]
+WantedBy=multi-user.target

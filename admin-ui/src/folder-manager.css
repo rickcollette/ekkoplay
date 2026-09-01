@@ -1,0 +1,10 @@
+.folder-node>input,.folder-song>input{width:17px;height:17px;flex:0 0 auto;accent-color:var(--accent)}
+.folder-node>div,.folder-song>div{display:flex;align-items:center;gap:5px;margin-left:auto}
+.folder-node>div button,.folder-song>div button{width:auto;height:34px;border:1px solid var(--line);border-radius:7px;background:var(--surface);color:var(--muted);padding:0 9px;display:flex;align-items:center;gap:5px;font-size:11px}
+.folder-node>div button:hover,.folder-song>div button:hover{color:var(--text);background:var(--surface2)}
+.folder-node>div button:last-child,.folder-song>div button:last-child{color:var(--danger)}
+.folder-node>div svg,.folder-song>div svg{width:14px}
+.folder-song>span{flex:1}
+.folder-bulk{position:sticky;top:70px;z-index:12;display:flex;align-items:center;gap:8px;padding:10px 12px;margin-bottom:12px;border:1px solid color-mix(in srgb,var(--accent) 40%,var(--line));border-radius:10px;background:var(--accent2);box-shadow:var(--shadow)}
+.folder-bulk strong{margin-right:auto}.folder-bulk select,.folder-bulk button{height:35px;border:1px solid var(--line);border-radius:8px;background:var(--surface);padding:0 10px}.folder-bulk button{display:flex;align-items:center;gap:5px}.folder-bulk svg{width:14px}
+@media(max-width:650px){.folder-node,.folder-song{flex-wrap:wrap}.folder-node>div,.folder-song>div{width:100%;margin-left:27px}.folder-bulk{flex-wrap:wrap}.folder-bulk strong{width:100%}.folder-bulk select{flex:1}}

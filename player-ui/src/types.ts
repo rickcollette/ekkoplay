@@ -1,0 +1,9 @@
+export type Song = { id:number; title:string; artist:string; album:string; album_id:number; artist_id:number; year:number; duration_ms:number; format:string; artwork?:string; favorite:boolean; track_number:number; disc_number:number; file_size?:number; genre:string; metadata_source?:string; metadata_confidence?:number }
+export type Album = { id:number; title:string; artist:string; artist_id:number; year:number; artwork?:string; song_count:number }
+export type Artist = { id:number; name:string; album_count:number; song_count:number; artwork?:string }
+export type Playlist = { id:number; name:string; song_count:number; artwork?:string; updated_at:string }
+export type RadioStation = { id:number; name:string; stream_url:string; genre:string; artwork?:string; favorite:boolean; call_sign:string; frequency:string; city:string; region:string; country:string; market:string; station_type:string; format:string; description:string; website_url:string; enabled:boolean }
+export type QueueItem = { id:number; position:number; song:Song }
+export type PlayerState = { status:'playing'|'paused'|'stopped'|'buffering'|string; track_id?:number; station_id?:number; position_ms:number; duration_ms:number; volume:number; muted:boolean; shuffle:boolean; repeat:string; queue_index:number; queue_length:number; current_song?:Song; current_radio?:RadioStation; updated_at:string }
+export type Home = { player:PlayerState; recently_played:Song[]; recently_added:Song[]; favorites:Song[]; playlists:Playlist[]; radio:RadioStation[] }
+export type SearchResults = { songs:Song[]; albums:Album[]; artists:Artist[]; playlists:Playlist[]; radio:RadioStation[] }
