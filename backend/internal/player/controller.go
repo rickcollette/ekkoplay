@@ -38,12 +38,26 @@ func (c *Controller) restorePaused() {
 	if e != nil {
 		return
 	}
-	if p.TrackID > 0 && p.CurrentSong != nil {
-		if c.engine.Play(ctx, p.CurrentSong.FilePath) == nil {
-			_ = c.engine.Pause(ctx, true)
-			if p.PositionMS > 0 {
-				_ = c.engine.Seek(ctx, time.Duration(p.PositionMS)*time.Millisecond)
-			}
+	var source string
+	seekable := false
+	if p.TrackID > 0 {
+		song, err := c.store.Song(ctx, p.TrackID)
+		if err == nil {
+			p.CurrentSong = &song
+			source = song.FilePath
+			seekable = true
+		}
+	} else if p.StationID > 0 {
+		station, err := c.store.RadioByID(ctx, p.StationID)
+		if err == nil {
+			p.CurrentRadio = &station
+			source = station.StreamURL
+		}
+	}
+	if source != "" && c.engine.Play(ctx, source) == nil {
+		_ = c.engine.Pause(ctx, true)
+		if seekable && p.PositionMS > 0 {
+			_ = c.engine.Seek(ctx, time.Duration(p.PositionMS)*time.Millisecond)
 		}
 	}
 	p.Status = "paused"
