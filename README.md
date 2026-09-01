@@ -1,10 +1,10 @@
 # ekkoPlayer
 
-A production-oriented Raspberry Pi 4 music appliance built around a Go control plane, SQLite, mpv/ALSA audio playback, nginx, a phone-first React/Vite PWA, and a separate administration application.
+A production-oriented Linux music appliance for ARM64 and AMD64 systems, built around a Go control plane, SQLite, mpv/ALSA audio playback, nginx, a phone-first React/Vite PWA, and a separate administration application.
 
 ## Core rule
 
-The Raspberry Pi owns playback. The phone is only a remote control. Music continues if every browser closes, the phone sleeps, Wi-Fi drops, or a WebSocket reconnects.
+The appliance owns playback. Phones and browsers are remote controls. Music continues if every browser closes, a phone sleeps, Wi-Fi drops, or a WebSocket reconnects.
 
 ## Repository
 
@@ -50,7 +50,7 @@ npm run dev
 
 The Vite development servers proxy `/api` and `/ws` to `127.0.0.1:9091`.
 
-## Raspberry Pi paths
+## Appliance paths
 
 Production defaults use:
 
@@ -61,9 +61,9 @@ Production defaults use:
 ├── database/
 ├── imports/
 ├── backup/
-└── web/
-    ├── player/
-    └── admin/
+├── torrents/
+├── update/
+└── tmp/
 ```
 
 ## Build
@@ -82,14 +82,14 @@ sudo install -m 0755 backend/ekkoplayer /usr/local/bin/ekkoplayer
 
 ## URLs
 
-- Player: `http://PI:9090/`
-- Admin: `http://PI:9090/admin/`
-- API: `http://PI:9090/api/v1/`
-- WebSocket: `ws://PI:9090/ws`
+- Player: `http://APPLIANCE:9090/`
+- Admin: `http://APPLIANCE:9090/admin/`
+- API: `http://APPLIANCE:9090/api/v1/`
+- WebSocket: `ws://APPLIANCE:9090/ws`
 
-## Raspberry Pi analog output
+## Audio output
 
-On Raspberry Pi OS, force analog output if necessary with `raspi-config` or the appropriate ALSA/PipeWire configuration for the image you use. The default example config asks mpv for `alsa/default`; change `audio_device` after checking:
+The default configuration uses the platform-neutral `alsa/default` device. Select any ALSA device exposed by the installed ARM64 or AMD64 host after checking:
 
 ```bash
 mpv --audio-device=help
@@ -109,8 +109,8 @@ Appliance upgrades are managed from Admin → Settings. Update checks use the co
 
 ## Release and appliance installation
 
-Build an aarch64 release with `make release-arm64`. On the Pi, run `deploy/install.sh` once, then deploy the generated `release/` directory with `deploy/release.sh`. Releases are stored under `/opt/ekkoplayer/releases` and switched atomically through `/opt/ekkoplayer/current`.
+Build both native release bundles with `make release-all`, or one architecture with `make release-arm64` or `make release-amd64`. On a supported Debian or Ubuntu host, extract the matching archive and run `initialize.sh` with the completed installation config. Releases are stored under `/opt/ekkoplayer/releases` and switched atomically through `/opt/ekkoplayer/current`.
 
 Daily database/configuration backups retain seven archives. Create one immediately with `ekkoplayer backup`; restore only while `playerd` is stopped using `ekkoplayer restore BACKUP --confirm`. On an installed appliance the CLI automatically loads `/etc/ekkoplayer/player.json`; development can override it with `EKKOPLAYER_CONFIG`.
 
-The default production configuration targets Raspberry Pi analog output at `alsa/hw:0,0`. The application assumes a trusted LAN and does not implement authentication or public-internet exposure.
+The default production configuration targets `alsa/default` and supports multiple mirrored ALSA devices. Administrative operations require the database-backed administrator account. Trusted-LAN HTTP is the default; configure TLS before exposing the appliance to an untrusted network.
