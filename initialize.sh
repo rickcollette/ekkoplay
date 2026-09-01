@@ -36,6 +36,9 @@ while IFS= read -r configured_device;do device_name=${configured_device#alsa/};i
 
 id -u ekkoplayer >/dev/null 2>&1 || useradd --system --home-dir "$data_path" --shell /usr/sbin/nologin ekkoplayer
 usermod -a -G audio ekkoplayer
+# Artwork is served directly by nginx. Keep the durable data tree private to
+# the appliance group while allowing nginx to traverse and read artwork files.
+usermod -a -G ekkoplayer www-data
 install -d -o root -g ekkoplayer -m 0750 /etc/ekkoplayer
 install -d -o root -g root -m 0755 /opt/ekkoplayer/releases
 for path in "$data_path" "$music_path" "$import_path" "$art_path" "$backup_path" "$torrent_path" "$data_path/database" "$data_path/tmp" "$data_path/update"; do install -d -o ekkoplayer -g ekkoplayer -m 0750 "$path"; done
